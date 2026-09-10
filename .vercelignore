@@ -1,0 +1,9 @@
+frontend/
+tests/
+backend/data/crm_dataset.csv
+backend/data/leads.csv
+backend/data/customers.csv
+backend/data/processed/
+backend/ml/lead_scoring/train.py
+backend/ml/churn_prediction/train.py
+README.md
