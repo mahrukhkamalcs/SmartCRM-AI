@@ -1,0 +1,70 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS users (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL,
+	email TEXT NOT NULL,
+	password TEXT NOT NULL,
+	role TEXT NOT NULL,
+	created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS leads (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL,
+	email TEXT NOT NULL,
+	phone TEXT,
+	company TEXT,
+	source TEXT,
+	status TEXT NOT NULL,
+	score REAL,
+	created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS customers (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL,
+	email TEXT NOT NULL,
+	phone TEXT,
+	company TEXT,
+	status TEXT NOT NULL,
+	created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS interactions (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	lead_id INTEGER,
+	customer_id INTEGER,
+	type TEXT NOT NULL,
+	subject TEXT,
+	notes TEXT,
+	interaction_date TEXT NOT NULL,
+	FOREIGN KEY (lead_id) REFERENCES leads (id) ON DELETE SET NULL,
+	FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS deals (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	lead_id INTEGER,
+	customer_id INTEGER,
+	title TEXT NOT NULL,
+	value REAL NOT NULL,
+	stage TEXT NOT NULL,
+	probability REAL,
+	expected_close_date TEXT,
+	created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (lead_id) REFERENCES leads (id) ON DELETE SET NULL,
+	FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS ai_recommendations (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	lead_id INTEGER,
+	customer_id INTEGER,
+	recommendation_type TEXT NOT NULL,
+	recommendation TEXT NOT NULL,
+	confidence REAL,
+	created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (lead_id) REFERENCES leads (id) ON DELETE SET NULL,
+	FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE SET NULL
+);

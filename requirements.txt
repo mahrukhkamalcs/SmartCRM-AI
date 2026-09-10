@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-dotenv
+pandas
+numpy
+scikit-learn
+joblib
+google-genai
+openai
+streamlit
+requests
