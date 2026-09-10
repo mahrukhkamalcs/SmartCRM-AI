@@ -9,5 +9,4 @@ scikit-learn
 joblib
 google-genai
 openai
-streamlit
 requests
