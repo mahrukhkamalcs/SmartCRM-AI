@@ -1,1 +1,1 @@
-BACKEND_URL = "http://127.0.0.1:8010"
+BACKEND_URL = "https://smart-crm-ai-smoky.vercel.app"

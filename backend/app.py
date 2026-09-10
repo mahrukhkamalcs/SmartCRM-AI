@@ -9,10 +9,15 @@ from backend.crud.customer_crud import router as customer_router
 from backend.crud.deal_crud import router as deal_router
 from backend.crud.interaction_crud import router as interaction_router
 from backend.crud.lead_crud import router as lead_router
-from backend.database.db import get_db
+from backend.database.db import Base, engine, get_db
 from agentic_ai.workflows.ask_crm_workflow import answer_crm_question
+from backend.models.ai_recommendation import AIRecommendation
+from backend.models.customer import Customer
+from backend.models.deal import Deal
+from backend.models.interaction import Interaction
 from backend.ml.lead_scoring.predict import predict_lead_score
 from backend.models.lead import Lead
+from backend.models.user import User
 
 
 app = FastAPI(title="SmartCRM-AI API")
@@ -23,6 +28,7 @@ app.add_middleware(
 		"http://localhost:8501",
 		"http://127.0.0.1:8501",
 	],
+	allow_origin_regex=r"https://[a-z0-9-]+\.streamlit\.app",
 	allow_credentials=True,
 	allow_methods=["*"],
 	allow_headers=["*"],
@@ -32,6 +38,7 @@ app.include_router(lead_router)
 app.include_router(customer_router)
 app.include_router(interaction_router)
 app.include_router(deal_router)
+Base.metadata.create_all(bind=engine)
 
 
 class CRMQuestion(BaseModel):
