@@ -51,7 +51,7 @@ def render_status_table(rows):
 		return
 	headers = list(rows[0].keys())
 	headers_html = "".join(f"<th>{safe_text(header)}</th>" for header in headers)
-	body_html = []
+	tbody_html = []
 	for row in rows:
 		cells = []
 		for header in headers:
@@ -61,7 +61,7 @@ def render_status_table(rows):
 			else:
 				cell = safe_text(value, "—")
 			cells.append(f"<td>{cell}</td>")
-			tbody_html.append(f"<tr>{''.join(cells)}</tr>")
+		tbody_html.append(f"<tr>{''.join(cells)}</tr>")
 	st.markdown(
 		f'<div class="status-table-wrap"><table class="status-table">'
 		f'<thead><tr>{headers_html}</tr></thead><tbody>{"".join(tbody_html)}</tbody>'
