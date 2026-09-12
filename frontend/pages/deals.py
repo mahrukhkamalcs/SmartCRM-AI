@@ -9,7 +9,7 @@ if frontend_dir not in sys.path:
 	sys.path.insert(0, frontend_dir)
 
 from config import BACKEND_URL
-from components.ui import api_error, badge, display_value, empty_state, load_styles, metric_card, page_header, tone_for_status
+from components.ui import api_error, badge, display_value, empty_state, load_styles, metric_card, page_header, render_status_table, tone_for_status
 
 
 def render_deals_page():
@@ -83,8 +83,18 @@ def render_deals_page():
 		api_error("Unable to load deals from the backend. Please try again shortly.")
 		return
 
+	filter_col, stage_col = st.columns([2, 1])
+	with filter_col:
+		search = st.text_input("Search deals", placeholder="Search title or linked record ID", label_visibility="collapsed")
+	with stage_col:
+		stage_filter = st.selectbox("Deal stage", ["All stages"] + sorted({str(deal.get("stage") or "Unknown") for deal in deals}), label_visibility="collapsed")
+	if search.strip():
+		deals = [deal for deal in deals if search.lower() in str(deal).lower()]
+	if stage_filter != "All stages":
+		deals = [deal for deal in deals if str(deal.get("stage") or "Unknown") == stage_filter]
+
 	if not deals:
-		empty_state("No deals found", "Create a deal to start tracking pipeline value.")
+		empty_state("No matching deals", "Adjust the search or filters, or create a new deal above.")
 		return
 
 	total_value = sum(float(deal.get("value") or 0) for deal in deals)
@@ -120,7 +130,7 @@ def render_deals_page():
 		for deal in deals
 	]
 	st.markdown('<div class="section-label">Pipeline register</div>', unsafe_allow_html=True)
-	st.dataframe(table_data, use_container_width=True, hide_index=True)
+	render_status_table(table_data)
 
 
 render_deals_page()

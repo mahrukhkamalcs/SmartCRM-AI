@@ -1,9 +1,14 @@
+from html import escape
 from pathlib import Path
 
 import streamlit as st
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def safe_text(value, fallback=""):
+	return escape(str(value if value is not None else fallback))
 
 
 def load_styles():
@@ -15,9 +20,9 @@ def page_header(eyebrow, title, description):
 	st.markdown(
 		f"""
 		<div class="page-header">
-			<div class="eyebrow">{eyebrow}</div>
-			<h1>{title}</h1>
-			<p>{description}</p>
+			<div class="eyebrow">{safe_text(eyebrow)}</div>
+			<h1>{safe_text(title)}</h1>
+			<p>{safe_text(description)}</p>
 		</div>
 		""",
 		unsafe_allow_html=True,
@@ -28,9 +33,9 @@ def metric_card(label, value, detail="", tone="blue"):
 	st.markdown(
 		f"""
 		<div class="metric-card metric-{tone}">
-			<div class="metric-label">{label}</div>
-			<div class="metric-value">{value}</div>
-			<div class="metric-detail">{detail}</div>
+			<div class="metric-label">{safe_text(label)}</div>
+			<div class="metric-value">{safe_text(value)}</div>
+			<div class="metric-detail">{safe_text(detail)}</div>
 		</div>
 		""",
 		unsafe_allow_html=True,
@@ -38,7 +43,31 @@ def metric_card(label, value, detail="", tone="blue"):
 
 
 def badge(label, tone="neutral"):
-	return f'<span class="status-badge badge-{tone}">{label}</span>'
+	return f'<span class="status-badge badge-{safe_text(tone)}">{safe_text(label)}</span>'
+
+
+def render_status_table(rows):
+	if not rows:
+		return
+	headers = list(rows[0].keys())
+	headers_html = "".join(f"<th>{safe_text(header)}</th>" for header in headers)
+	body_html = []
+	for row in rows:
+		cells = []
+		for header in headers:
+			value = row.get(header, "")
+			if isinstance(value, str) and value.startswith('<span class="status-badge '):
+				cell = value
+			else:
+				cell = safe_text(value, "—")
+			cells.append(f"<td>{cell}</td>")
+			tbody_html.append(f"<tr>{''.join(cells)}</tr>")
+	st.markdown(
+		f'<div class="status-table-wrap"><table class="status-table">'
+		f'<thead><tr>{headers_html}</tr></thead><tbody>{"".join(tbody_html)}</tbody>'
+		f'</table></div>',
+		unsafe_allow_html=True,
+	)
 
 
 def display_value(value, fallback="—"):
@@ -72,14 +101,14 @@ def tone_for_status(status):
 
 def api_error(message="Unable to connect to the CRM backend."):
 	st.markdown(
-		f'<div class="state-panel error-panel"><strong>Connection issue</strong><br>{message}</div>',
+		f'<div class="state-panel error-panel"><strong>Connection issue</strong><br>{safe_text(message)}</div>',
 		unsafe_allow_html=True,
 	)
 
 
 def empty_state(title, detail):
 	st.markdown(
-		f'<div class="state-panel"><strong>{title}</strong><br><span>{detail}</span></div>',
+		f'<div class="state-panel"><strong>{safe_text(title)}</strong><br><span>{safe_text(detail)}</span></div>',
 		unsafe_allow_html=True,
 	)
 

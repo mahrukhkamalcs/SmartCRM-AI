@@ -9,7 +9,7 @@ if frontend_dir not in sys.path:
 	sys.path.insert(0, frontend_dir)
 
 from config import BACKEND_URL
-from components.ui import api_error, badge, display_value, empty_state, load_styles, metric_card, page_header, score_label, tone_for_status
+from components.ui import api_error, badge, display_value, empty_state, load_styles, metric_card, page_header, render_status_table, score_label, tone_for_status
 
 
 def render_leads_page():
@@ -40,7 +40,9 @@ def render_leads_page():
 	if submitted and not submission_handled:
 		if not name.strip():
 			st.error("Please enter a lead name.")
-		elif email.strip() and ("@" not in email or "." not in email.split("@")[-1]):
+		elif not email.strip():
+			st.error("Please enter a lead email address.")
+		elif "@" not in email or "." not in email.split("@")[-1]:
 			st.error("Please enter a valid email address.")
 		else:
 			lead_data = {
@@ -72,8 +74,18 @@ def render_leads_page():
 		api_error("Unable to load leads from the backend. Please try again shortly.")
 		return
 
+	filter_col, status_col = st.columns([2, 1])
+	with filter_col:
+		search = st.text_input("Search leads", placeholder="Search name, company, or email", label_visibility="collapsed")
+	with status_col:
+		status_filter = st.selectbox("Lead status", ["All statuses"] + sorted({str(lead.get("status") or "Unknown") for lead in leads}), label_visibility="collapsed")
+	if search.strip():
+		leads = [lead for lead in leads if search.lower() in str(lead).lower()]
+	if status_filter != "All statuses":
+		leads = [lead for lead in leads if str(lead.get("status") or "Unknown") == status_filter]
+
 	if not leads:
-		empty_state("No leads found", "Use the form above to add your first opportunity.")
+		empty_state("No matching leads", "Adjust the search or filters, or add a new opportunity above.")
 		return
 
 	st.markdown('<div class="section-label">Pipeline snapshot</div>', unsafe_allow_html=True)
@@ -106,7 +118,7 @@ def render_leads_page():
 			"Lead score": badge(score, score_tone), "Source": display_value(lead.get("source")),
 		})
 	st.markdown('<div class="section-label">All opportunities</div>', unsafe_allow_html=True)
-	st.dataframe(table_data, use_container_width=True, hide_index=True)
+	render_status_table(table_data)
 
 
 render_leads_page()

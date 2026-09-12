@@ -10,7 +10,7 @@ if frontend_dir not in sys.path:
 	sys.path.insert(0, frontend_dir)
 
 from config import BACKEND_URL
-from components.ui import api_error, badge, display_value, empty_state, load_styles, metric_card, page_header
+from components.ui import api_error, badge, display_value, empty_state, load_styles, metric_card, page_header, render_status_table
 
 
 def render_interactions_page():
@@ -108,7 +108,7 @@ def render_interactions_page():
 		for item in interactions
 	]
 	st.markdown('<div class="section-label">Activity timeline</div>', unsafe_allow_html=True)
-	st.dataframe(table_data, use_container_width=True, hide_index=True)
+	render_status_table(table_data)
 
 
 render_interactions_page()

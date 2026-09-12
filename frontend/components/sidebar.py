@@ -8,8 +8,8 @@ def render_sidebar(page_groups):
 	with st.sidebar:
 		st.markdown(
 			'<div class="brand"><span class="brand-mark">S</span>'
-			'<span class="brand-name">SmartCRM-AI</span>'
-			'<div class="brand-sub">Intelligence for every relationship</div></div>',
+			'<span class="brand-name">SmartCRM <em>AI</em></span>'
+			'<div class="brand-sub">Revenue intelligence workspace</div></div>',
 			unsafe_allow_html=True,
 		)
 		for group_name, pages in page_groups.items():
@@ -34,7 +34,7 @@ def render_sidebar(page_groups):
 					st.success("Backend connected")
 				else:
 					st.error("Unexpected backend response")
-			except requests.RequestException:
+			except (requests.RequestException, ValueError):
 				st.error("Backend unavailable")
 		st.markdown(
 				'<div class="sidebar-footer"><strong>SmartCRM-AI</strong><br>'

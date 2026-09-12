@@ -9,7 +9,7 @@ if frontend_dir not in sys.path:
 	sys.path.insert(0, frontend_dir)
 
 from config import BACKEND_URL
-from components.ui import api_error, badge, display_value, empty_state, load_styles, metric_card, page_header, tone_for_status
+from components.ui import api_error, badge, display_value, empty_state, load_styles, metric_card, page_header, render_status_table, tone_for_status
 
 
 def render_customers_page():
@@ -36,7 +36,9 @@ def render_customers_page():
 	if submitted and not submission_handled:
 		if not name.strip():
 			st.error("Please enter a customer name.")
-		elif email.strip() and ("@" not in email or "." not in email.split("@")[-1]):
+		elif not email.strip():
+			st.error("Please enter a customer email address.")
+		elif "@" not in email or "." not in email.split("@")[-1]:
 			st.error("Please enter a valid email address.")
 		else:
 			customer_data = {
@@ -69,8 +71,18 @@ def render_customers_page():
 		api_error("Unable to load customers from the backend. Please try again shortly.")
 		return
 
+	filter_col, status_col = st.columns([2, 1])
+	with filter_col:
+		search = st.text_input("Search contacts", placeholder="Search name, company, or email", label_visibility="collapsed")
+	with status_col:
+		status_filter = st.selectbox("Contact status", ["All statuses"] + sorted({str(customer.get("status") or "Unknown") for customer in customers}), label_visibility="collapsed")
+	if search.strip():
+		customers = [customer for customer in customers if search.lower() in str(customer).lower()]
+	if status_filter != "All statuses":
+		customers = [customer for customer in customers if str(customer.get("status") or "Unknown") == status_filter]
+
 	if not customers:
-		empty_state("No customers found", "Customer records will appear here once they are added.")
+		empty_state("No matching contacts", "Adjust the search or filters, or add a new contact above.")
 		return
 
 	st.markdown('<div class="section-label">Relationship snapshot</div>', unsafe_allow_html=True)
@@ -101,7 +113,7 @@ def render_customers_page():
 		for customer in customers
 	]
 	st.markdown('<div class="section-label">Customer directory</div>', unsafe_allow_html=True)
-	st.dataframe(table_data, use_container_width=True, hide_index=True)
+	render_status_table(table_data)
 
 
 render_customers_page()
